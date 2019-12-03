@@ -1,68 +1,116 @@
-def draw_lines(line, max_x = 100, max_y = 100, start_x = None, start_y = None, area = None):
-    if not area:
-        area = [[]]
+class Point():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __str__(self):
+        return f"{(self.x, self.y)}"
 
-        for y in range(max_x):
-            area.insert(y, ['.']*max_y)
+    def __repr__(self):
+        return self.__str__()
 
-    if not start_x and start_x is not 0:
-        start_x = (max_x // 2) - 1
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
 
-    if not start_y and start_y is not 0:
-        start_y = (max_y // 2) - 1
+# def check_if_intersect(a1, a2, b1, b2):
+#     line1 = LineString([(a1.x, a1.y), (a2.x, a2.y)])
+#     line2 = LineString([(b1.x, b1.y), (b2.x, b2.y)])
+#     inter = line1.intersection(line2)
 
-    area[start_y][start_x] = 'o'
+#     if inter.is_empty:
+#         return None
 
-    next_x = start_x
-    next_y = start_y
+#     return Point(inter.x, inter.y)
 
-    instructions = [inst.strip() for inst in line.split(',')]
+def read_input():
+    instructions = []
+    with open('input.txt', 'r') as f:
+        for line in f:
+            instructions.append([v.strip() for v in line.split(',')])
+    return instructions
+
+def unpack_instruction(instruction):
+    return (instruction[0].lower(), int(instruction[1:]))
+
+def calculate_new_point(point, instruction, length):
+    x = point[0]
+    y = point[1]
+
+    if instruction == 'r':
+        x += length
+    elif instruction == 'l':
+        x -= length
+    elif instruction == 'u':
+        y += length
+    else:
+        y -= length
+    
+    return (x,y)
+
+def caluculate_route(instructions):
+    result = []
+    sp = (0,0)
+    np = None
+
+    result.append(sp)
     for instruction in instructions:
-        direction = instruction[0].lower()
-        length = int(instruction[1:]) - 1
+        direction, length = unpack_instruction(instruction)
+        for i in range(length):
+            np = calculate_new_point(sp, direction, 1)
+            result.append(np)
+            sp = np
+    
+    return set(result)
 
-        if direction == 'r':
-            next_x += length
-        elif direction == 'l':
-            next_x -= length
-        elif direction == 'u':
-            next_y -= length
-        else:
-            next_y += length
+instructions = read_input()
+route_1_set = caluculate_route(instructions[0])
+route_2_set = caluculate_route(instructions[1])
+common = route_1_set.intersection(route_2_set)
+common.remove((0,0))
 
-        while next_x > start_x:
-            area[start_y][start_x + 1] = '-'
-            start_x += 1
-        
-        while next_x < start_x:
-            area[start_y][start_x - 1] = '-'
-            start_x -= 1
+#print(route_1_set)
+#print(route_2_set)
+#print(common)
 
-        while next_y > start_y:
-            area[start_y + 1][start_x] = '|'
-            start_y += 1
+distances = [abs(p[0]) + abs(p[1]) for p in common]
+print(distances)
+print(min(distances))
 
-        while next_y < start_y:
-            area[start_y - 1][start_x] = '|'
-            start_y -= 1    
+# instructions_1_sp = Point(0,0)
+# instructions_2_sp = Point(0,0)
+# instructions_1_pp = Point(0,0)
+# instructions_1_np = Point(0,0)
+# instructions_2_pp = Point(0,0)
+# instructions_2_np = Point(0,0)
 
-        try:
-            print(f"Next coordinate: {(next_x, next_y)}")
-            area[next_y][next_x] = '+'
-        except IndexError:
-            print(f"Instruction out of index: {instruction}")
+# intersections = []
 
-    return area
+# for instruction_1 in instructions[0]:
+#     direction, length = unpack_instruction(instruction_1)
 
-index = 0
-with open('input.txt', 'r') as f:
-    area = None
+# for instruction_1 in instructions[0]:
+#     direction_1, length_1 = unpack_instruction(instruction_1)
+#     instructions_1_np = calculate_new_point(instructions_1_pp, direction_1, length_1)
 
-    for line in f:
-        area = draw_lines(line, 250, 400, None, None, area)
+#     for instruction_2 in instructions[1]:
+#         direction_2, length_2 = unpack_instruction(instruction_2)
+#         instructions_2_np = calculate_new_point(instructions_2_np, direction_2, length_2)
 
-    with open(f'output.txt', 'w') as ff:
-        for index in range(len(area)):
-            ff.write("".join(area[index]) + "\n")
+#         #print(f"Point 1-1: {instructions_1_pp}")
+#         #print(f"Point 1-2: {instructions_1_np}")
+#         #print(f"Point 2-1: {instructions_2_pp}")
+#         #print(f"Point 2-2: {instructions_2_np}")
 
-    index += 1
+#         inter = check_if_intersect(instructions_1_pp, instructions_1_np, instructions_2_pp, instructions_2_np)
+#         if inter and not (inter.x == inter.y and inter.x == 0):
+#             intersections.append(inter)
+
+#         instructions_2_pp = instructions_2_np
+
+#     instructions_1_pp = instructions_1_np
+#     instructions_2_np = instructions_2_sp
+
+# distances = [abs(p.x) + abs(p.y) for p in intersections]
+# print(intersections)
+# print(distances)
+# print(min(distances))
