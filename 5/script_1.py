@@ -1,3 +1,8 @@
+class Operation():
+    def __init__(self, operation, step):
+        self.operation = operation
+        self.step = step
+
 OPT_QUIT = (99, 0)
 OPT_SUM = (1, 4)
 OPT_MUL = (2, 4)
@@ -7,7 +12,9 @@ OPT_OUT = (4, 1)
 INS_MOD = 0
 CURSOR_STEP = 4
 
-OPT_CODES = [OPT_SUM[0], OPT_MUL[0], OPT_IN[0], OPT_OUT[0]]
+OPT_INSTR = [OPT_SUM, OPT_MUL, OPT_IN, OPT_OUT]
+OPT_CODES = [code[0] for code in OPT_INSTR]
+OPT_STEPS = [code[1] for code in OPT_INSTR]
 
 def read_input():
     values = []
@@ -28,7 +35,7 @@ def run_intcode(values:[]):
         result = None
         opt_code = values[cursor]
 
-        if(opt_code == OPT_QUIT or opt_code not in OPT_CODES):
+        if(opt_code == OPT_QUIT or opt_code not in [code[0] for code in OPT_CODES]):
             break
 
         if(opt_code == OPT_SUM[0]):
