@@ -38,9 +38,11 @@ def run_intcode(values:[], operations):
     cursor = 0
     opt_code = 0
     result = 0
-    step = 1
+    
 
     while cursor < len(values):
+        step = 1
+
         result = None
 
         instruction = create_instruction(values[cursor])
@@ -54,26 +56,23 @@ def run_intcode(values:[], operations):
 
         if operation.params == 0:
             result = operation.func()
-            step += 1
+            step += 0
         elif operation.params == 1:
             param1 = read_parameter(values, cursor + 1, opt_mode[1])
             result = operation.func(param1)
-            step += 2
+            step += 1
         elif operation.params == 2:
             param1 = read_parameter(values, cursor + 1, opt_mode[1])
             param2 = read_parameter(values, cursor + 2, opt_mode[0])
             result = operation.func(param1, param2)
-            step += 3
+            step += 2
 
         if result == WorkCode.DO_EXIT:
             break
 
         if result != WorkCode.NO_SAVE:
-            output_index = read_parameter(values, step - 1, 0)
-            try:
-                values[output_index] = result
-            except IndexError:
-                print((output_index, step - 1, cursor))
+            output_index = read_parameter(values, cursor + (step - 1), 0)
+            values[output_index] = result
 
         cursor += step
     
