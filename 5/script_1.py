@@ -92,6 +92,10 @@ if __name__ == "__main__":
     OPT_MUL = Operation(2, lambda n1, n2: n1 * n2)
     OPT_IN  = Operation(1, lambda n1: 1)
     OPT_OUT = Operation(1, lambda n1: lambda_print(n1))
+    OPT_JIT = Operation(2, lambda n1, n2: n2 if n1 != 0 else WorkCode.NO_SAVE)
+    OPT_JIF = Operation(2, lambda n1, n2: n2 if n1 == 0 else WorkCode.NO_SAVE)
+    OPT_LT  = Operation(2, lambda n1, n2: 1 if n1 < n2 else 0)
+    OPT_EQ  = Operation(2, lambda n1, n2: 1 if n1 == n2 else 0)
 
     operations = {
         "99": OPT_QUIT,
