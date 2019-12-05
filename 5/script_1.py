@@ -8,25 +8,32 @@ def lambda_print(n):
     print(n, end='') 
     return n
 
-# INS_MOD = 0
-# CURSOR_STEP = 4
+def read_input():
+    values = []
+    with open('input.txt', 'r') as f:
+        line = f.readline()
+        values = [int(v) for v in line.split(",")]
+    return values
 
-# operations = [OPT_QUIT, OPT_SUM, OPT_MUL, OPT_IN, OPT_OUT]
+def create_instruction(value):
+    value_as_str = str(value)
+    if len(value_as_str) < 4:
+        return value_as_str.zfill(4)
+    return value_as_str
 
+def read_parameter(values, cursor, mode):
+    index = None
 
-# def read_input():
-#     values = []
-#     with open('input.txt', 'r') as f:
-#         line = f.readline()
-#         values = [int(v) for v in line.split(",")]
-#     return values
+    if mode == 0:
+        index = values[cursor]
+    else:
+        index = cursor
+
+    return values[index]
 
 def run_intcode(values:[], operations):
     cursor = 0
     opt_code = 0
-    index_1 = 0
-    index_2 = 0
-    index_3 = 0
     result = 0
 
     while cursor < len(values):
@@ -55,52 +62,9 @@ def run_intcode(values:[], operations):
         if result == None:
             break
 
+        output_index = read_parameter(values, operation.step - 1, 1)
+        values[output_index] = result
         cursor += operation.step
-
-        # if(opt_code == OPT_SUM[0]):
-        #     index_1 = values[cursor + 1]
-        #     index_2 = values[cursor + 2]
-        #     index_3 = values[cursor + 3]
-
-        #     value_1 = values[index_1]
-        #     value_2 = values[index_2]
-
-        #     result = value_1 + value_2
-
-        # if(opt_code == OPT_MUL[0]):
-        #     index_1 = values[cursor + 1]
-        #     index_2 = values[cursor + 2]
-        #     index_3 = values[cursor + 3]
-
-        #     value_1 = values[index_1]
-        #     value_2 = values[index_2]
-
-        #     result = value_1 * value_2
-
-        # if(opt_code == OPT_IN):
-        #     result = int(input())
-
-        # if(opt_code == OPT_OUT):
-        #     print(values[index_3], end='')
-
-        # values[index_3] = result
-        # cursor += CURSOR_STEP
-
-def create_instruction(value):
-    value_as_str = str(value)
-    if len(value_as_str) < 4:
-        return value_as_str.zfill(4)
-    return value_as_str
-
-def read_parameter(values, cursor, mode):
-    index = None
-
-    if mode == 0:
-        index = values[cursor]
-    else:
-        index = cursor
-
-    return values[index]
 
 if __name__ == "__main__":
 
@@ -119,15 +83,4 @@ if __name__ == "__main__":
     }
 
 
-    print()
-
-    # print(create_instruction(1))
-    # print(create_instruction(11))
-    # print(create_instruction(111))
-    # print(create_instruction(1111))
-    # print(operations["99"])
-    # opt_code = 1
-    # if(opt_code == OPT_QUIT or opt_code not in operations):
-    #     print("NAY")
-    # else:
-    #     print("OKAY")
+    print(read_parameter([0,3,5], 1, 0))
