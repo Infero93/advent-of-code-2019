@@ -1,9 +1,8 @@
 from enum import Enum
 
 class Operation():
-    def __init__(self, params, step, func):
+    def __init__(self, params, func):
         self.params = params
-        self.step = step
         self.func = func
 
 class WorkCode(Enum):
@@ -41,6 +40,7 @@ def run_intcode(values:[], operations):
     cursor = 0
     opt_code = 0
     result = 0
+    step = 1
 
     while cursor < len(values):
         result = None
@@ -56,33 +56,35 @@ def run_intcode(values:[], operations):
 
         if operation.params == 0:
             result = operation.func()
+            step += 1
         elif operation.params == 1:
             param1 = read_parameter(values, cursor + 1, opt_mode[1])
             result = operation.func(param1)
+            step += 2
         elif operation.params == 2:
             param1 = read_parameter(values, cursor + 1, opt_mode[1])
             param2 = read_parameter(values, cursor + 2, opt_mode[0])
             result = operation.func(param1, param2)
-
+            step += 3
 
         if result == WorkCode.DO_EXIT:
             break
 
         if result != WorkCode.NO_SAVE:
-            output_index = read_parameter(values, operation.step - 1, 1)
+            output_index = read_parameter(values, step - 1, 0)
             values[output_index] = result
 
-        cursor += operation.step
+        cursor += step
     
     return values
 
 if __name__ == "__main__":
 
-    OPT_QUIT = Operation(0, 0, lambda: WorkCode.DO_EXIT)
-    OPT_SUM = Operation(2, 4, lambda n1, n2: n1 + n2)
-    OPT_MUL = Operation(2, 4, lambda n1, n2: n1 * n2)
-    OPT_IN  = Operation(0, 1, lambda: int(input()))
-    OPT_OUT = Operation(1, 1, lambda n1: lambda_print(n1))
+    OPT_QUIT = Operation(0, lambda: WorkCode.DO_EXIT)
+    OPT_SUM = Operation(2, lambda n1, n2: n1 + n2)
+    OPT_MUL = Operation(2, lambda n1, n2: n1 * n2)
+    OPT_IN  = Operation(0, lambda: int(input()))
+    OPT_OUT = Operation(1, lambda n1: lambda_print(n1))
 
     operations = {
         "99": OPT_QUIT,
@@ -94,3 +96,5 @@ if __name__ == "__main__":
 
     values = read_input()
     values = run_intcode(values, operations)
+    print()
+    print(values)
