@@ -3,18 +3,27 @@ class Operation():
         self.operation = operation
         self.step = step
 
-OPT_QUIT = (99, 0)
-OPT_SUM = (1, 4)
-OPT_MUL = (2, 4)
-OPT_IN  = (3, 1)
-OPT_OUT = (4, 1)
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.operation == other
+        elif isinstance(other, Operation):
+            return self.operation == other.operation
+        elif isinstance(other, int):
+            if other > 9:
+                return self.__eq__(str(other))
+            return self.__eq__("0"+str(other))
+        return False    
+
+OPT_QUIT = Operation("99", 0)
+OPT_SUM = Operation("01", 4)
+OPT_MUL = Operation("02", 4)
+OPT_IN  = Operation("03", 1)
+OPT_OUT = Operation("04", 1)
 
 INS_MOD = 0
 CURSOR_STEP = 4
 
-OPT_INSTR = [OPT_SUM, OPT_MUL, OPT_IN, OPT_OUT]
-OPT_CODES = [code[0] for code in OPT_INSTR]
-OPT_STEPS = [code[1] for code in OPT_INSTR]
+operations = [OPT_QUIT, OPT_SUM, OPT_MUL, OPT_IN, OPT_OUT]
 
 def read_input():
     values = []
@@ -35,7 +44,7 @@ def run_intcode(values:[]):
         result = None
         opt_code = values[cursor]
 
-        if(opt_code == OPT_QUIT or opt_code not in [code[0] for code in OPT_CODES]):
+        if(opt_code == OPT_QUIT or opt_code not in operations):
             break
 
         if(opt_code == OPT_SUM[0]):
@@ -67,24 +76,9 @@ def run_intcode(values:[]):
         values[index_3] = result
         cursor += CURSOR_STEP
 
-x = 0
-y = 0
-
-with open("output.txt", "w+") as f:
-    for i in range(99 + 1):
-        for j in range(99 + 1):
-            values = read_input()
-            values[1] = i
-            values[2] = j
-            
-            run_intcode(values)
-
-            f.write(f"i: {i}, j: {j}\n")
-            f.write(f"values: {values}\n")
-
-            if values[0] == 19690720:
-                print((i, j))
-                x = i
-                y = j
-                
-print(f"Result: {100 * x + y}")
+if __name__ == "__main__":
+    opt_code = 1
+    if(opt_code == OPT_QUIT or opt_code not in operations):
+        print("NAY")
+    else:
+        print("OKAY")
