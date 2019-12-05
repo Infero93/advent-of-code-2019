@@ -1,12 +1,18 @@
+from enum import Enum
+
 class Operation():
     def __init__(self, params, step, func):
         self.params = params
         self.step = step
         self.func = func
 
+class WorkCode(Enum):
+    NO_SAVE = 0
+    DO_EXIT = 1
+
 def lambda_print(n):
     print(n, end='') 
-    return n
+    return WorkCode.NO_SAVE
 
 def read_input():
     values = []
@@ -24,7 +30,7 @@ def create_instruction(value):
 def read_parameter(values, cursor, mode):
     index = None
 
-    if mode == 0:
+    if mode == '0':
         index = values[cursor]
     else:
         index = cursor
@@ -59,19 +65,23 @@ def run_intcode(values:[], operations):
             result = operation.func(param1, param2)
 
 
-        if result == None:
+        if result == WorkCode.DO_EXIT:
             break
 
-        output_index = read_parameter(values, operation.step - 1, 1)
-        values[output_index] = result
+        if result != WorkCode.NO_SAVE:
+            output_index = read_parameter(values, operation.step - 1, 1)
+            values[output_index] = result
+
         cursor += operation.step
+    
+    return values
 
 if __name__ == "__main__":
 
-    OPT_QUIT = Operation(0, 0, lambda: None)
+    OPT_QUIT = Operation(0, 0, lambda: WorkCode.DO_EXIT)
     OPT_SUM = Operation(2, 4, lambda n1, n2: n1 + n2)
     OPT_MUL = Operation(2, 4, lambda n1, n2: n1 * n2)
-    OPT_IN  = Operation(0, 1, lambda: input())
+    OPT_IN  = Operation(0, 1, lambda: int(input()))
     OPT_OUT = Operation(1, 1, lambda n1: lambda_print(n1))
 
     operations = {
@@ -82,5 +92,5 @@ if __name__ == "__main__":
         "04": OPT_OUT
     }
 
-
-    print(read_parameter([0,3,5], 1, 0))
+    values = read_input()
+    values = run_intcode(values, operations)
