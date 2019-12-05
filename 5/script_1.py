@@ -27,14 +27,12 @@ def create_instruction(value):
     return value_as_str
 
 def read_parameter(values, cursor, mode):
-    index = None
+    mode = int(mode)
 
-    if mode == '0':
-        index = values[cursor]
-    else:
-        index = cursor
+    if mode == 1:
+        return values[cursor]
 
-    return values[index]
+    return values[values[cursor]]
 
 def run_intcode(values:[], operations):
     cursor = 0
@@ -72,7 +70,10 @@ def run_intcode(values:[], operations):
 
         if result != WorkCode.NO_SAVE:
             output_index = read_parameter(values, step - 1, 0)
-            values[output_index] = result
+            try:
+                values[output_index] = result
+            except IndexError:
+                print((output_index, step - 1, cursor))
 
         cursor += step
     
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     OPT_QUIT = Operation(0, lambda: WorkCode.DO_EXIT)
     OPT_SUM = Operation(2, lambda n1, n2: n1 + n2)
     OPT_MUL = Operation(2, lambda n1, n2: n1 * n2)
-    OPT_IN  = Operation(0, lambda: int(input()))
+    OPT_IN  = Operation(0, lambda: 1)
     OPT_OUT = Operation(1, lambda n1: lambda_print(n1))
 
     operations = {
