@@ -39,42 +39,49 @@ def run_intcode(values:[], operations):
     opt_code = 0
     result = 0
     
+    with open('output.txt', 'w') as log_file:
+        while cursor < len(values):
+            params = []
+            step = 1
+            result = None
 
-    while cursor < len(values):
-        step = 1
+            instruction = create_instruction(values[cursor])
+            opt_code = instruction[2:]
+            opt_mode = instruction[:2]
 
-        result = None
+            if(opt_code in operations):
+                operation = operations[opt_code]
 
-        instruction = create_instruction(values[cursor])
-        opt_code = instruction[2:]
-        opt_mode = instruction[:2]
+                if operation.params == 0:
+                    result = operation.func()
+                    step += 0
+                elif operation.params == 1:
+                    param1 = read_parameter(values, cursor + 1, opt_mode[1])
+                    result = operation.func(param1)
+                    step += 1
+                    params.append(param1)
+                elif operation.params == 2:
+                    param1 = read_parameter(values, cursor + 1, opt_mode[1])
+                    param2 = read_parameter(values, cursor + 2, opt_mode[0])
+                    result = operation.func(param1, param2)
+                    step += 3
+                    params.append(param1)
+                    params.append(param2)
+            else:
+                result = WorkCode.DO_EXIT
 
-        if(opt_code not in operations):
-            break
+            if result == WorkCode.DO_EXIT:
+                break
 
-        operation = operations[opt_code]
+            if result != WorkCode.NO_SAVE:
+                output_index = read_parameter(values, cursor + (step - 1), 1)
 
-        if operation.params == 0:
-            result = operation.func()
-            step += 0
-        elif operation.params == 1:
-            param1 = read_parameter(values, cursor + 1, opt_mode[1])
-            result = operation.func(param1)
-            step += 1
-        elif operation.params == 2:
-            param1 = read_parameter(values, cursor + 1, opt_mode[1])
-            param2 = read_parameter(values, cursor + 2, opt_mode[0])
-            result = operation.func(param1, param2)
-            step += 2
+                log_file.write(f"Cursor: {cursor} | Step: {step} | Params: {params} | Full instruction: {instruction} | opt_mode: {opt_mode} | opt_code: {opt_code} | output_index: {output_index}\n")
+                log_file.write(f"{values}\n")
 
-        if result == WorkCode.DO_EXIT:
-            break
+                values[output_index] = result
 
-        if result != WorkCode.NO_SAVE:
-            output_index = read_parameter(values, cursor + (step - 1), 0)
-            values[output_index] = result
-
-        cursor += step
+            cursor += step
     
     return values
 
@@ -83,7 +90,7 @@ if __name__ == "__main__":
     OPT_QUIT = Operation(0, lambda: WorkCode.DO_EXIT)
     OPT_SUM = Operation(2, lambda n1, n2: n1 + n2)
     OPT_MUL = Operation(2, lambda n1, n2: n1 * n2)
-    OPT_IN  = Operation(0, lambda: 1)
+    OPT_IN  = Operation(1, lambda n1: 1)
     OPT_OUT = Operation(1, lambda n1: lambda_print(n1))
 
     operations = {
@@ -95,6 +102,6 @@ if __name__ == "__main__":
     }
 
     values = read_input()
+    print(len(values))
     values = run_intcode(values, operations)
     print()
-    print(values)
