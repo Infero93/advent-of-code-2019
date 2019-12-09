@@ -1,4 +1,5 @@
 from enum import Enum, auto
+import itertools
 
 class Operation():
     def __init__(self, params, func):
@@ -157,10 +158,13 @@ if __name__ == "__main__":
     
     power = 0
     number = 0
-    for i in range(44444 + 1):
-        new_power = run_for_number(i, output_container, read_input())
+
+    for phase in itertools.permutations(['5', '6', '7', '8', '9']):
+        value = "".join(phase)
+        new_power = run_for_number(value, output_container, read_input())
         if new_power and power < new_power:
             power = new_power
-            number = i
+            number = phase
 
+    number = "".join(number)
     print(f"Biggest power {power} for number {number}")
