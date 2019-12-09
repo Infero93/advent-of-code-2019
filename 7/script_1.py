@@ -43,7 +43,6 @@ def run_intcode(values:[], operations):
     result = 0
     
     while cursor < len(values):
-        params = []
         step = 1
         result = None
         work_code = WorkCode.DO_EXIT
@@ -63,24 +62,17 @@ def run_intcode(values:[], operations):
                 param1 = read_parameter(values, cursor + 1, opt_mode[1])
                 work_code, result, step_modifier = operation.func(param1)
                 step += 1
-                params.append(param1)
             elif operation.params == 2:
                 param1 = read_parameter(values, cursor + 1, opt_mode[1])
                 param2 = read_parameter(values, cursor + 2, opt_mode[0])
                 work_code, result, step_modifier = operation.func(param1, param2)
                 step += 3
-                params.append(param1)
-                params.append(param2)
 
         if work_code == WorkCode.DO_EXIT:
             break
 
         if work_code == WorkCode.DO_SAVE:
             output_index = read_parameter(values, cursor + (step - 1), 1)
-
-            #print(f"Cursor: {cursor} | Step: {step} | Params: {params} | Full instruction: {instruction} | opt_mode: {opt_mode} | opt_code: {opt_code} | output_index: {output_index}\n")
-            #print(f"{values}\n")
-
             values[output_index] = result
 
         if work_code == WorkCode.DO_JUMP:
