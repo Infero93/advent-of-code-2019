@@ -157,7 +157,7 @@ if __name__ == "__main__":
     
     power = 0
     number = 0
-    for i in range(99999 + 1):
+    for i in range(44444 + 1):
         new_power = run_for_number(i, output_container, read_input())
         if new_power and power < new_power:
             power = new_power
